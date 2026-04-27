@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --primary: #FF6B9D;
+  --primary-dark: #e85d8e;
+  --secondary: #FFD93D;
+  --mint: #6BCB77;
+  --sky: #4D96FF;
+  --bg: #FFF9FC;
+  --text: #2D2D2D;
+  --muted: #888;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.12);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}

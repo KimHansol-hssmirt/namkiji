@@ -1,0 +1,86 @@
+/* ─── Header ─── */
+#header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(255,107,157,0.15);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.logo-text .main { font-size: 17px; font-weight: 800; color: var(--primary); }
+.logo-text .sub  { font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+
+#admin-btn {
+  padding: 6px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 20px;
+  font-size: 12px;
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#admin-btn.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #fff0f6;
+}
+
+/* ─── Map ─── */
+#map {
+  position: fixed;
+  top: 60px; bottom: 0; left: 0; right: 0;
+}
+
+/* ─── FAB ─── */
+#fab {
+  position: fixed;
+  bottom: 28px; right: 20px;
+  z-index: 100;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(255,107,157,0.45);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s, background 0.2s;
+}
+#fab:active { transform: scale(0.93); }
+
+/* ─── Modal overlay ─── */
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+#modal-overlay.show { opacity: 1; pointer-events: all; }
