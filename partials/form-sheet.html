@@ -1,0 +1,32 @@
+<div id="modal-overlay" onclick="closeForm()"></div>
+
+<div id="form-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">📍 매장 제보하기</div>
+
+  <div class="form-group">
+    <label>매장명 *</label>
+    <input type="text" id="f-name" placeholder="예) 꼬마세상" />
+  </div>
+
+  <div class="form-group">
+    <label>주소 *</label>
+    <input type="text" id="f-addr" placeholder="예) 서울 중구 남대문시장길 12" />
+  </div>
+
+  <div class="form-group">
+    <label>품목 *</label>
+    <div class="cat-group">
+      <div class="cat-pill" data-cat="clothes" onclick="selectCat('clothes')">👗 옷</div>
+      <div class="cat-pill" data-cat="shoes"   onclick="selectCat('shoes')">👟 신발</div>
+      <div class="cat-pill" data-cat="goods"   onclick="selectCat('goods')">🎒 잡화</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>메모</label>
+    <textarea id="f-memo" placeholder="영업시간, 특이사항 등 자유롭게 적어주세요"></textarea>
+  </div>
+
+  <button class="submit-btn" onclick="submitStore()">지도에 핀 등록하기 📌</button>
+</div>

@@ -84,7 +84,7 @@ function updateCount() {
   document.getElementById('count-num').textContent = Object.keys(overlays).length;
 }
 
-// ─── 카카오맵 SDK 로드 후 실행 ────────────────────────────────────────────
+// ─── 카카오맵 SDK 로드 후 실행 (loader.js에서 호출) ──────────────────────
 function tryInit() {
   if (typeof kakao !== 'undefined' && kakao.maps) {
     kakao.maps.load(initMap);
@@ -92,8 +92,6 @@ function tryInit() {
     setTimeout(tryInit, 100);
   }
 }
-
-window.addEventListener('load', tryInit);
 
 document.getElementById('map').addEventListener('click', function(e) {
   if (!e.target.closest('.map-pin') && !e.target.closest('#info-popup')) {

@@ -1,0 +1,10 @@
+<div id="admin-modal">
+  <div class="admin-box">
+    <h3>🔐 관리자 로그인</h3>
+    <input type="password" id="admin-pw" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')confirmAdmin()" />
+    <div class="admin-actions">
+      <button class="admin-cancel" onclick="closeAdminModal()">취소</button>
+      <button class="admin-confirm" onclick="confirmAdmin()">확인</button>
+    </div>
+  </div>
+</div>
