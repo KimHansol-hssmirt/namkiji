@@ -21,8 +21,9 @@ let geocoder = null;
 let overlays = {};
 let editingStoreId = null;
 let selectedPlace = null;
+let currentFilter = 'all';
 
-const catLabel = { clothes: '옷', shoes: '신발', goods: '잡화' };
+const catLabel = { clothes: '옷', shoes: '신발', goods: '잡화', snack: '간식' };
 
 // ─── 토스트 메시지 ────────────────────────────────────────────────────────
 let toastTimer = null;

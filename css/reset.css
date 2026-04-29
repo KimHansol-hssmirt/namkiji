@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,6 +12,7 @@
   --secondary: #FFD93D;
   --mint: #6BCB77;
   --sky: #4D96FF;
+  --snack: #FF9500;
   --bg: #FFF9FC;
   --text: #2D2D2D;
   --muted: #888;

@@ -1,3 +1,56 @@
+// ─── 뷰 전환 ─────────────────────────────────────────────────────────────
+function switchView(view) {
+  const isMap = view === 'map';
+  document.getElementById('map').style.display           = isMap ? 'block' : 'none';
+  document.getElementById('legend').style.display        = isMap ? 'flex'  : 'none';
+  document.getElementById('store-count').style.display   = isMap ? 'block' : 'none';
+  document.getElementById('fab').style.display           = isMap ? 'flex'  : 'none';
+  document.getElementById('info-popup').style.display    = 'none';
+  document.getElementById('store-list-view').classList.toggle('show', !isMap);
+  document.getElementById('view-map-btn').classList.toggle('active', isMap);
+  document.getElementById('view-list-btn').classList.toggle('active', !isMap);
+  if (!isMap) renderStoreList();
+}
+
+function filterList(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.cat === cat);
+  });
+  renderStoreList();
+}
+
+function renderStoreList() {
+  const ul = document.getElementById('store-list-ul');
+  if (!ul) return;
+
+  const stores = Object.values(overlays).map(e => e.store);
+  const filtered = currentFilter === 'all' ? stores : stores.filter(s => s.cat === currentFilter);
+  filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+
+  ul.innerHTML = filtered.length === 0
+    ? '<li style="text-align:center;color:#bbb;padding:40px 0;font-size:14px;">매장이 없어요</li>'
+    : filtered.map(s => `
+      <li class="store-item" onclick="goToStore('${s.id}')">
+        <div class="store-item-header">
+          <span class="store-item-name">${s.name}</span>
+          <span class="store-item-tag ${s.cat}">${catLabel[s.cat]}</span>
+        </div>
+        ${s.hours ? `<div class="store-item-hours">🕐 ${s.hours}</div>` : ''}
+        <div class="store-item-addr">📍 ${s.addr}</div>
+        ${s.memo ? `<div class="store-item-memo">💬 ${s.memo}</div>` : ''}
+      </li>`).join('');
+}
+
+function goToStore(id) {
+  switchView('map');
+  const entry = overlays[id];
+  if (!entry) return;
+  map.panTo(new kakao.maps.LatLng(entry.store.lat, entry.store.lng));
+  map.setLevel(3);
+  setTimeout(() => showPopup(id), 300);
+}
+
 // ─── 장소 검색 ───────────────────────────────────────────────────────────
 let ps = null;
 
@@ -49,6 +102,11 @@ function selectPlace(place) {
   closePlaceSearch();
 }
 
+function clearHours() {
+  document.getElementById('f-open').value = '';
+  document.getElementById('f-close').value = '';
+}
+
 // ─── 제보 폼 ─────────────────────────────────────────────────────────────
 function openForm() {
   document.getElementById('modal-overlay').classList.add('show');
@@ -74,27 +132,41 @@ async function submitStore() {
   const memo = document.getElementById('f-memo').value.trim();
 
   if (!name) { showToast('매장명을 입력해주세요'); return; }
-  if (!addr) { showToast('주소를 🔍 찾기 버튼으로 검색해주세요'); return; }
+  if (!addr) { showToast('주소를 입력해주세요'); return; }
   if (!selectedCat) { showToast('품목을 선택해주세요'); return; }
-  if (!selectedPlace) { showToast('주소를 🔍 찾기 버튼으로 검색해주세요'); return; }
 
-  const { lat, lng } = selectedPlace;
+  const openTime  = document.getElementById('f-open').value;
+  const closeTime = document.getElementById('f-close').value;
+  const hours = openTime && closeTime ? `${openTime} ~ ${closeTime}` : (openTime || closeTime || '');
 
-  if (editingStoreId) {
-    await db.collection('stores').doc(editingStoreId).update({ name, addr, cat: selectedCat, memo, lat, lng });
+  async function save(lat, lng) {
+    const data = { name, addr, cat: selectedCat, memo, hours, lat, lng };
+    if (editingStoreId) {
+      await db.collection('stores').doc(editingStoreId).update(data);
+      showToast('✏️ 수정됐어요!');
+    } else {
+      await db.collection('stores').add({
+        ...data,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+      showToast('📌 지도에 등록됐어요!');
+    }
     map.panTo(new kakao.maps.LatLng(lat, lng));
     closeForm();
     resetForm();
-    showToast('✏️ 수정됐어요!');
+  }
+
+  if (selectedPlace) {
+    await save(selectedPlace.lat, selectedPlace.lng);
   } else {
-    await db.collection('stores').add({
-      name, addr, cat: selectedCat, memo, lat, lng,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    showToast('주소 검색 중...');
+    geocoder.addressSearch(addr, async function(result, status) {
+      if (status === kakao.maps.services.Status.OK) {
+        await save(parseFloat(result[0].y), parseFloat(result[0].x));
+      } else {
+        showToast('주소를 찾을 수 없어요. 다시 확인해주세요.');
+      }
     });
-    map.panTo(new kakao.maps.LatLng(lat, lng));
-    closeForm();
-    resetForm();
-    showToast('📌 지도에 등록됐어요!');
   }
 }
 
@@ -102,6 +174,8 @@ function resetForm() {
   editingStoreId = null;
   document.getElementById('f-name').value = '';
   document.getElementById('f-addr').value = '';
+  document.getElementById('f-open').value = '';
+  document.getElementById('f-close').value = '';
   document.getElementById('f-memo').value = '';
   selectedCat = '';
   document.querySelectorAll('.cat-pill').forEach(el => el.className = 'cat-pill');
@@ -123,12 +197,22 @@ function showPopup(id) {
   tagEl.textContent = catLabel[s.cat] || s.cat;
   tagEl.className = `popup-tag ${s.cat}`;
 
+  const hoursEl = document.getElementById('popup-hours');
+  hoursEl.textContent = s.hours ? '🕐 ' + s.hours : '';
   document.getElementById('popup-addr').textContent = '📍 ' + s.addr;
   document.getElementById('popup-memo').textContent = s.memo ? '💬 ' + s.memo : '';
 
   const isDummy = dummyStores.some(d => d.id === id);
   document.getElementById('popup-actions').classList.toggle('visible', isAdmin && !isDummy);
   document.getElementById('info-popup').style.display = 'block';
+}
+
+function openNavi(id) {
+  const entry = overlays[id];
+  if (!entry) return;
+  const { name, lat, lng } = entry.store;
+  const url = `https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`;
+  window.open(url, '_blank');
 }
 
 function closePopup() {
@@ -157,6 +241,11 @@ function openEditForm(id) {
   document.getElementById('f-name').value = s.name;
   document.getElementById('f-addr').value = s.addr;
   document.getElementById('f-memo').value = s.memo || '';
+  if (s.hours && s.hours.includes('~')) {
+    const [o, c] = s.hours.split('~').map(t => t.trim());
+    document.getElementById('f-open').value = o;
+    document.getElementById('f-close').value = c;
+  }
   selectCat(s.cat);
 
   document.querySelector('.sheet-title').textContent = '✏️ 매장 수정하기';

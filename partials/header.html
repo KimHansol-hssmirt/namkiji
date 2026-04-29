@@ -1,10 +1,16 @@
 <div id="header">
   <div class="logo" id="logo-tap">
-    <div class="logo-icon">👶</div>
+    <img src="assets/logo.png" alt="남키지" class="logo-img" />
     <div class="logo-text">
       <span class="main">남키지</span>
       <span class="sub">남대문 키즈 지도</span>
     </div>
   </div>
-  <button id="admin-btn" onclick="openAdminModal()">관리자</button>
+  <div class="header-right">
+    <div class="view-toggle">
+      <button id="view-map-btn" class="view-btn active" onclick="switchView('map')">📍 지도</button>
+      <button id="view-list-btn" class="view-btn" onclick="switchView('list')">📋 목록</button>
+    </div>
+    <button id="admin-btn" onclick="openAdminModal()">관리자</button>
+  </div>
 </div>

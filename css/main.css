@@ -1,3 +1,161 @@
+/* ─── 목록 필터 ─── */
+.list-filter {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.list-filter::-webkit-scrollbar { display: none; }
+
+.filter-pill {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #eee;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  background: #fafafa;
+  color: var(--text);
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.filter-pill.active           { background: var(--primary); border-color: var(--primary); color: #fff; }
+.filter-pill[data-cat="clothes"].active { background: var(--primary); border-color: var(--primary); }
+.filter-pill[data-cat="shoes"].active   { background: var(--sky);     border-color: var(--sky); }
+.filter-pill[data-cat="goods"].active   { background: var(--mint);    border-color: var(--mint); }
+.filter-pill[data-cat="snack"].active   { background: var(--snack);   border-color: var(--snack); }
+
+/* ─── 목록 아이템 ─── */
+#store-list-ul {
+  list-style: none;
+  padding: 10px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.store-item {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.store-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+
+.store-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.store-item-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  flex: 1;
+}
+.store-item-tag {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+.store-item-tag.clothes { background: var(--primary); }
+.store-item-tag.shoes   { background: var(--sky); }
+.store-item-tag.goods   { background: var(--mint); }
+.store-item-tag.snack   { background: var(--snack); }
+
+.store-item-hours {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.store-item-addr {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.store-item-memo {
+  font-size: 12px;
+  color: var(--text);
+}
+
+/* ─── 선택 라벨 ─── */
+.label-optional {
+  font-size: 11px;
+  font-weight: 400;
+  color: #bbb;
+}
+
+/* ─── 영업시간 인풋 ─── */
+.hours-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hours-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fafafa;
+  border: 1.5px solid #eee;
+  border-radius: 12px;
+  padding: 8px 12px;
+  flex: 1;
+}
+.hours-item:focus-within { border-color: var(--primary); background: #fff; }
+.hours-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.hours-item input[type="time"] {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  padding: 0;
+}
+.hours-dash {
+  font-size: 16px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.hours-clear-btn {
+  padding: 8px 10px;
+  border: 1.5px solid #eee;
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  background: #fafafa;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ─── 팝업 영업시간 ─── */
+.popup-hours {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
 /* ─── Form bottom sheet ─── */
 #form-sheet {
   position: fixed;
@@ -70,6 +228,7 @@
 .cat-pill.selected-clothes { border-color: var(--primary); background: #fff0f6; color: var(--primary); }
 .cat-pill.selected-shoes   { border-color: var(--sky);     background: #f0f6ff; color: var(--sky); }
 .cat-pill.selected-goods   { border-color: var(--mint);    background: #f0fff3; color: var(--mint); }
+.cat-pill.selected-snack   { border-color: var(--snack);   background: #fff5e6; color: var(--snack); }
 
 .submit-btn {
   width: 100%;
@@ -120,6 +279,8 @@
 .pin-bubble.shoes::after   { border-top-color: var(--sky); }
 .pin-bubble.goods   { background: var(--mint); }
 .pin-bubble.goods::after   { border-top-color: var(--mint); }
+.pin-bubble.snack   { background: var(--snack); }
+.pin-bubble.snack::after   { border-top-color: var(--snack); }
 
 /* ─── Info popup ─── */
 #info-popup {
@@ -165,9 +326,27 @@
 .popup-tag.clothes { background: var(--primary); }
 .popup-tag.shoes   { background: var(--sky); }
 .popup-tag.goods   { background: var(--mint); }
+.popup-tag.snack   { background: var(--snack); }
 
 .popup-addr { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .popup-memo { font-size: 13px; color: var(--text); }
+
+.popup-navi-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px;
+  background: #FEE500;
+  color: #3C1E1E;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.15s;
+}
+.popup-navi-btn:active { opacity: 0.8; }
 
 .popup-actions {
   display: none;

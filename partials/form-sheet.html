@@ -12,7 +12,7 @@
   <div class="form-group">
     <label>주소 *</label>
     <div class="addr-row">
-      <input type="text" id="f-addr" placeholder="아래 버튼으로 검색해주세요" readonly />
+      <input type="text" id="f-addr" placeholder="검색 또는 직접 입력" oninput="selectedPlace=null" />
       <button class="addr-search-btn" onclick="openPlaceSearch()">🔍 찾기</button>
     </div>
   </div>
@@ -23,12 +23,29 @@
       <div class="cat-pill" data-cat="clothes" onclick="selectCat('clothes')">👗 옷</div>
       <div class="cat-pill" data-cat="shoes"   onclick="selectCat('shoes')">👟 신발</div>
       <div class="cat-pill" data-cat="goods"   onclick="selectCat('goods')">🎒 잡화</div>
+      <div class="cat-pill" data-cat="snack"   onclick="selectCat('snack')">🍪 간식</div>
     </div>
   </div>
 
   <div class="form-group">
-    <label>메모</label>
-    <textarea id="f-memo" placeholder="영업시간, 특이사항 등 자유롭게 적어주세요"></textarea>
+    <label>영업시간 <span class="label-optional">(선택)</span></label>
+    <div class="hours-row">
+      <div class="hours-item">
+        <span class="hours-label">오픈</span>
+        <input type="time" id="f-open" />
+      </div>
+      <span class="hours-dash">~</span>
+      <div class="hours-item">
+        <span class="hours-label">마감</span>
+        <input type="time" id="f-close" />
+      </div>
+      <button class="hours-clear-btn" onclick="clearHours()">지우기</button>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>메모 <span class="label-optional">(선택)</span></label>
+    <textarea id="f-memo" placeholder="특이사항 등 자유롭게 적어주세요"></textarea>
   </div>
 
   <button class="submit-btn" onclick="submitStore()">지도에 핀 등록하기 📌</button>

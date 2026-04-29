@@ -4,8 +4,12 @@
     <button class="popup-close" onclick="closePopup()">×</button>
   </div>
   <span class="popup-tag" id="popup-tag"></span>
+  <div class="popup-hours" id="popup-hours"></div>
   <div class="popup-addr" id="popup-addr"></div>
   <div class="popup-memo" id="popup-memo"></div>
+  <button class="popup-navi-btn" id="popup-navi-btn" onclick="openNavi(currentPopupId)">
+    🚗 카카오맵 길찾기
+  </button>
   <div class="popup-actions" id="popup-actions">
     <button class="popup-edit"   id="popup-edit"   onclick="openEditForm(currentPopupId)">수정</button>
     <button class="popup-delete" id="popup-delete" onclick="deleteCurrentStore()">삭제</button>

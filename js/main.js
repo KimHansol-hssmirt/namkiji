@@ -63,6 +63,7 @@ function initMap() {
       if (change.type === 'removed')  removePinFromMap(store.id);
     });
     updateCount();
+    renderStoreList();
   });
 }
 

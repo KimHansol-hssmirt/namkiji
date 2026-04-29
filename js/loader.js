@@ -9,6 +9,7 @@ const PARTIALS = [
   'admin-modal',
   'toast',
   'place-search',
+  'store-list',
 ];
 
 async function init() {
