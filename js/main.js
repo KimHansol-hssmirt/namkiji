@@ -51,8 +51,18 @@ function initMap() {
   });
   geocoder = new kakao.maps.services.Geocoder();
 
-  getAllStores().forEach(s => addPinToMap(s));
-  updateCount();
+  // 더미 핀 표시
+  dummyStores.forEach(s => addPinToMap(s));
+
+  // Firestore 실시간 리스너 — 변경사항 자동 반영
+  db.collection('stores').onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      const store = { id: change.doc.id, ...change.doc.data() };
+      if (change.type === 'added')   addPinToMap(store);
+      if (change.type === 'removed') removePinFromMap(store.id);
+    });
+    updateCount();
+  });
 }
 
 // ─── 지도 핀 ─────────────────────────────────────────────────────────────

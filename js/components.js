@@ -28,21 +28,17 @@ function submitStore() {
 
   showToast('주소 검색 중...');
 
-  geocoder.addressSearch(addr, function(result, status) {
+  geocoder.addressSearch(addr, async function(result, status) {
     if (status === kakao.maps.services.Status.OK) {
       const store = {
-        id: 'user_' + Date.now(),
         name, addr, cat: selectedCat, memo,
         lat: parseFloat(result[0].y),
-        lng: parseFloat(result[0].x)
+        lng: parseFloat(result[0].x),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
 
-      const userStores = loadStores();
-      userStores.push(store);
-      saveStores(userStores);
-
-      addPinToMap(store);
-      updateCount();
+      await db.collection('stores').add(store);
+      // onSnapshot이 자동으로 핀 추가
       map.panTo(new kakao.maps.LatLng(store.lat, store.lng));
       closeForm();
       resetForm();
@@ -85,15 +81,14 @@ function closePopup() {
   currentPopupId = null;
 }
 
-function deleteCurrentStore() {
+async function deleteCurrentStore() {
   if (!currentPopupId || !isAdmin) return;
   if (dummyStores.some(s => s.id === currentPopupId)) {
     showToast('기본 데이터는 삭제할 수 없어요');
     return;
   }
-  saveStores(loadStores().filter(s => s.id !== currentPopupId));
-  removePinFromMap(currentPopupId);
-  updateCount();
+  await db.collection('stores').doc(currentPopupId).delete();
+  // onSnapshot이 자동으로 핀 제거
   closePopup();
   showToast('삭제됐어요');
 }

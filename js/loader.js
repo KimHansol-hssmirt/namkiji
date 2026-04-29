@@ -21,11 +21,10 @@ function loadScript(src) {
 
 async function loadPartials() {
   const app = document.getElementById('app');
-  for (const name of PARTIALS) {
-    const res = await fetch(`partials/${name}.html`);
-    const html = await res.text();
-    app.insertAdjacentHTML('beforeend', html);
-  }
+  const htmls = await Promise.all(
+    PARTIALS.map(name => fetch(`partials/${name}.html`).then(r => r.text()))
+  );
+  htmls.forEach(html => app.insertAdjacentHTML('beforeend', html));
 }
 
 async function init() {

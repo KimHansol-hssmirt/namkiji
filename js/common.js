@@ -1,3 +1,16 @@
+// ─── Firebase 초기화 ─────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            'AIzaSyA8UfcMut2nstcVF06dEFeYrsUhyRsD4zE',
+  authDomain:        'namkiji-4b339.firebaseapp.com',
+  projectId:         'namkiji-4b339',
+  storageBucket:     'namkiji-4b339.firebasestorage.app',
+  messagingSenderId: '388594334859',
+  appId:             '1:388594334859:web:1f8c97512e09f74e12a88e',
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 // ─── 전역 상태 ───────────────────────────────────────────────────────────
 const ADMIN_PASSWORD = 'namkiji2024';
 let isAdmin = false;
@@ -8,22 +21,6 @@ let geocoder = null;
 let overlays = {};
 
 const catLabel = { clothes: '옷', shoes: '신발', goods: '잡화' };
-
-// ─── localStorage 저장소 ─────────────────────────────────────────────────
-function loadStores() {
-  try {
-    const saved = localStorage.getItem('namkiji_stores');
-    return saved ? JSON.parse(saved) : [];
-  } catch { return []; }
-}
-
-function saveStores(list) {
-  localStorage.setItem('namkiji_stores', JSON.stringify(list));
-}
-
-function getAllStores() {
-  return [...dummyStores, ...loadStores()];
-}
 
 // ─── 토스트 메시지 ────────────────────────────────────────────────────────
 let toastTimer = null;
