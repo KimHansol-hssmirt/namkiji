@@ -68,7 +68,7 @@ function selectCat(cat) {
   });
 }
 
-function submitStore() {
+async function submitStore() {
   const name = document.getElementById('f-name').value.trim();
   const addr = document.getElementById('f-addr').value.trim();
   const memo = document.getElementById('f-memo').value.trim();
