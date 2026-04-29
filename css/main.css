@@ -169,17 +169,22 @@
 .popup-addr { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .popup-memo { font-size: 13px; color: var(--text); }
 
-.popup-delete {
+.popup-actions {
   display: none;
-  width: 100%;
+  gap: 8px;
   margin-top: 12px;
-  padding: 10px;
-  background: #fff2f2;
-  color: #e53e3e;
-  border: 1.5px solid #feb2b2;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
 }
-.popup-delete.visible { display: block; }
+.popup-actions.visible { display: flex; }
+
+.popup-edit {
+  flex: 1; padding: 10px;
+  background: #f0f6ff; color: var(--sky);
+  border: 1.5px solid #bee3f8; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}
+.popup-delete {
+  flex: 1; padding: 10px;
+  background: #fff2f2; color: #e53e3e;
+  border: 1.5px solid #feb2b2; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+}

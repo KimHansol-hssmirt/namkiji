@@ -19,6 +19,7 @@ let currentPopupId = null;
 let map = null;
 let geocoder = null;
 let overlays = {};
+let editingStoreId = null;
 
 const catLabel = { clothes: '옷', shoes: '신발', goods: '잡화' };
 

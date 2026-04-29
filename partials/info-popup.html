@@ -6,5 +6,8 @@
   <span class="popup-tag" id="popup-tag"></span>
   <div class="popup-addr" id="popup-addr"></div>
   <div class="popup-memo" id="popup-memo"></div>
-  <button class="popup-delete" id="popup-delete" onclick="deleteCurrentStore()">이 매장 삭제</button>
+  <div class="popup-actions">
+    <button class="popup-edit"   id="popup-edit"   onclick="openEditForm(currentPopupId)">수정</button>
+    <button class="popup-delete" id="popup-delete" onclick="deleteCurrentStore()">삭제</button>
+  </div>
 </div>

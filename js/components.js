@@ -30,19 +30,26 @@ function submitStore() {
 
   geocoder.addressSearch(addr, async function(result, status) {
     if (status === kakao.maps.services.Status.OK) {
-      const store = {
-        name, addr, cat: selectedCat, memo,
-        lat: parseFloat(result[0].y),
-        lng: parseFloat(result[0].x),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      };
+      const lat = parseFloat(result[0].y);
+      const lng = parseFloat(result[0].x);
 
-      await db.collection('stores').add(store);
-      // onSnapshot이 자동으로 핀 추가
-      map.panTo(new kakao.maps.LatLng(store.lat, store.lng));
-      closeForm();
-      resetForm();
-      showToast('📌 지도에 등록됐어요!');
+      if (editingStoreId) {
+        await db.collection('stores').doc(editingStoreId).update({ name, addr, cat: selectedCat, memo, lat, lng });
+        map.panTo(new kakao.maps.LatLng(lat, lng));
+        closeForm();
+        resetForm();
+        showToast('✏️ 수정됐어요!');
+      } else {
+        const store = {
+          name, addr, cat: selectedCat, memo, lat, lng,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        };
+        await db.collection('stores').add(store);
+        map.panTo(new kakao.maps.LatLng(lat, lng));
+        closeForm();
+        resetForm();
+        showToast('📌 지도에 등록됐어요!');
+      }
     } else {
       showToast('주소를 찾을 수 없어요. 다시 확인해주세요.');
     }
@@ -50,11 +57,14 @@ function submitStore() {
 }
 
 function resetForm() {
+  editingStoreId = null;
   document.getElementById('f-name').value = '';
   document.getElementById('f-addr').value = '';
   document.getElementById('f-memo').value = '';
   selectedCat = '';
   document.querySelectorAll('.cat-pill').forEach(el => el.className = 'cat-pill');
+  document.querySelector('.sheet-title').textContent = '📍 매장 제보하기';
+  document.querySelector('.submit-btn').textContent = '지도에 핀 등록하기 📌';
 }
 
 // ─── 매장 정보 팝업 ───────────────────────────────────────────────────────
@@ -72,7 +82,9 @@ function showPopup(id) {
 
   document.getElementById('popup-addr').textContent = '📍 ' + s.addr;
   document.getElementById('popup-memo').textContent = s.memo ? '💬 ' + s.memo : '';
-  document.getElementById('popup-delete').classList.toggle('visible', isAdmin);
+
+  const isDummy = dummyStores.some(d => d.id === id);
+  document.getElementById('popup-actions').classList.toggle('visible', isAdmin && !isDummy);
   document.getElementById('info-popup').style.display = 'block';
 }
 
@@ -88,9 +100,26 @@ async function deleteCurrentStore() {
     return;
   }
   await db.collection('stores').doc(currentPopupId).delete();
-  // onSnapshot이 자동으로 핀 제거
   closePopup();
   showToast('삭제됐어요');
+}
+
+function openEditForm(id) {
+  const entry = overlays[id];
+  if (!entry) return;
+  const s = entry.store;
+
+  editingStoreId = id;
+  document.getElementById('f-name').value = s.name;
+  document.getElementById('f-addr').value = s.addr;
+  document.getElementById('f-memo').value = s.memo || '';
+  selectCat(s.cat);
+
+  document.querySelector('.sheet-title').textContent = '✏️ 매장 수정하기';
+  document.querySelector('.submit-btn').textContent = '수정 완료 ✓';
+
+  closePopup();
+  openForm();
 }
 
 // ─── 관리자 모달 ──────────────────────────────────────────────────────────

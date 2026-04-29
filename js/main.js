@@ -58,8 +58,9 @@ function initMap() {
   db.collection('stores').onSnapshot(snapshot => {
     snapshot.docChanges().forEach(change => {
       const store = { id: change.doc.id, ...change.doc.data() };
-      if (change.type === 'added')   addPinToMap(store);
-      if (change.type === 'removed') removePinFromMap(store.id);
+      if (change.type === 'added')    addPinToMap(store);
+      if (change.type === 'modified') { removePinFromMap(store.id); addPinToMap(store); }
+      if (change.type === 'removed')  removePinFromMap(store.id);
     });
     updateCount();
   });
