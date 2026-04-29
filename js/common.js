@@ -20,6 +20,7 @@ let map = null;
 let geocoder = null;
 let overlays = {};
 let editingStoreId = null;
+let selectedPlace = null;
 
 const catLabel = { clothes: '옷', shoes: '신발', goods: '잡화' };
 

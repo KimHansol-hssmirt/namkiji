@@ -8,6 +8,7 @@ const PARTIALS = [
   'form-sheet',
   'admin-modal',
   'toast',
+  'place-search',
 ];
 
 function loadScript(src) {

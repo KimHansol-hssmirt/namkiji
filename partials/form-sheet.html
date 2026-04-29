@@ -11,7 +11,10 @@
 
   <div class="form-group">
     <label>주소 *</label>
-    <input type="text" id="f-addr" placeholder="예) 서울 중구 남대문시장길 12" />
+    <div class="addr-row">
+      <input type="text" id="f-addr" placeholder="아래 버튼으로 검색해주세요" readonly />
+      <button class="addr-search-btn" onclick="openPlaceSearch()">🔍 찾기</button>
+    </div>
   </div>
 
   <div class="form-group">
