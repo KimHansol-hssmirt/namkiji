@@ -1,15 +1,98 @@
-// ─── 뷰 전환 ─────────────────────────────────────────────────────────────
+// ─── 매장 목록 패널 ──────────────────────────────────────────────────────
+let panelOpen = false;
+
+function openStorePanel() {
+  if (panelOpen) return;
+  panelOpen = true;
+  renderStoreList();
+  document.getElementById('store-list-view').classList.add('show');
+  document.getElementById('store-panel-overlay').classList.add('show');
+  document.getElementById('store-count').classList.add('panel-open');
+  document.getElementById('info-popup').style.display = 'none';
+  initPanelDrag();
+}
+
+function closeStorePanel() {
+  if (!panelOpen) return;
+  panelOpen = false;
+  const panel = document.getElementById('store-list-view');
+  panel.classList.remove('show');
+  panel.style.transform = '';     // 드래그 인라인 스타일 초기화
+  document.getElementById('store-panel-overlay').classList.remove('show');
+  document.getElementById('store-count').classList.remove('panel-open');
+}
+
+function toggleStorePanel() {
+  panelOpen ? closeStorePanel() : openStorePanel();
+}
+
+// ─── 패널 드래그로 닫기 (위로 끌면 닫힘) ─────────────────────────────────
+function initPanelDrag() {
+  const handle = document.getElementById('panel-drag-handle');
+  const panel  = document.getElementById('store-list-view');
+  const THRESHOLD = 80;
+
+  function startDrag(startY) {
+    panel.style.transition = 'none';
+
+    function onMove(clientY) {
+      const dy = Math.min(0, clientY - startY); // 위쪽만 허용
+      panel.style.transform = `translateY(${dy}px)`;
+    }
+
+    function endDrag(clientY) {
+      panel.style.transition = '';
+      const dy = Math.min(0, clientY - startY);
+      if (Math.abs(dy) >= THRESHOLD) {
+        closeStorePanel();
+      } else {
+        panel.style.transform = '';
+      }
+    }
+
+    // 터치
+    function touchMove(e) { onMove(e.touches[0].clientY); e.preventDefault(); }
+    function touchEnd(e)  { endDrag(e.changedTouches[0].clientY); cleanup(); }
+    // 마우스
+    function mouseMove(e) { onMove(e.clientY); }
+    function mouseUp(e)   { endDrag(e.clientY); cleanup(); }
+
+    function cleanup() {
+      document.removeEventListener('touchmove', touchMove);
+      document.removeEventListener('touchend',  touchEnd);
+      document.removeEventListener('mousemove', mouseMove);
+      document.removeEventListener('mouseup',   mouseUp);
+    }
+
+    document.addEventListener('touchmove', touchMove, { passive: false });
+    document.addEventListener('touchend',  touchEnd);
+    document.addEventListener('mousemove', mouseMove);
+    document.addEventListener('mouseup',   mouseUp);
+  }
+
+  handle.ontouchstart = e => startDrag(e.touches[0].clientY);
+  handle.onmousedown  = e => startDrag(e.clientY);
+}
+
+// ─── 뷰 전환 (헤더 토글) ─────────────────────────────────────────────────
 function switchView(view) {
   const isMap = view === 'map';
-  document.getElementById('map').style.display           = isMap ? 'block' : 'none';
-  document.getElementById('legend').style.display        = isMap ? 'flex'  : 'none';
-  document.getElementById('store-count').style.display   = isMap ? 'block' : 'none';
-  document.getElementById('fab').style.display           = isMap ? 'flex'  : 'none';
-  document.getElementById('info-popup').style.display    = 'none';
-  document.getElementById('store-list-view').classList.toggle('show', !isMap);
   document.getElementById('view-map-btn').classList.toggle('active', isMap);
   document.getElementById('view-list-btn').classList.toggle('active', !isMap);
-  if (!isMap) renderStoreList();
+
+  if (isMap) {
+    closeStorePanel();
+    applyMapFilter();
+  } else {
+    openStorePanel();
+  }
+}
+
+function applyMapFilter() {
+  const visibleIds = new Set(getFilteredStores().map(s => s.id));
+  Object.entries(overlays).forEach(([id, entry]) => {
+    entry.overlay.setMap(visibleIds.has(id) ? map : null);
+  });
 }
 
 function filterList(cat) {
@@ -17,33 +100,113 @@ function filterList(cat) {
   document.querySelectorAll('.filter-pill').forEach(el => {
     el.classList.toggle('active', el.dataset.cat === cat);
   });
+  applyCurrentFilter();
+}
+
+let searchOpen = false;
+
+function toggleSearch() {
+  searchOpen = !searchOpen;
+  const row = document.getElementById('header-search-row');
+  const btn = document.getElementById('search-toggle-btn');
+  const SEARCH_H = 54;
+  const BASE_TOP = 62;
+
+  row.classList.toggle('open', searchOpen);
+  btn.classList.toggle('active', searchOpen);
+  document.body.classList.toggle('search-open', searchOpen);
+
+  const newTop = (BASE_TOP + (searchOpen ? SEARCH_H : 0)) + 'px';
+  document.getElementById('map').style.top = newTop;
+  document.getElementById('store-list-view').style.top = newTop;
+
+  if (searchOpen) {
+    setTimeout(() => document.getElementById('store-search-input').focus(), 150);
+  } else {
+    clearSearch();
+  }
+}
+
+function searchStores(query) {
+  currentSearch = query.trim();
+  const clearBtn = document.getElementById('search-clear-btn');
+  if (clearBtn) clearBtn.style.display = currentSearch ? 'block' : 'none';
+  applyCurrentFilter();
+}
+
+function applyCurrentFilter() {
+  const isMapVisible = document.getElementById('map').style.display !== 'none';
+  if (isMapVisible) {
+    applyMapFilter();
+  } else {
+    renderStoreList();
+  }
+}
+
+function clearSearch() {
+  currentSearch = '';
+  const input = document.getElementById('store-search-input');
+  if (input) input.value = '';
+  const clearBtn = document.getElementById('search-clear-btn');
+  if (clearBtn) clearBtn.style.display = 'none';
   renderStoreList();
+}
+
+function getFilteredStores() {
+  const stores = Object.values(overlays).map(e => e.store);
+  const keyword = currentSearch.toLowerCase();
+  const catLabelsKo = { clothes: '옷', shoes: '신발', goods: '잡화', snack: '간식' };
+
+  return stores.filter(s => {
+    const matchCat  = currentFilter === 'all' || s.cat === currentFilter;
+    const matchText = !keyword
+      || s.name.toLowerCase().includes(keyword)
+      || (catLabelsKo[s.cat] || '').includes(keyword)
+      || (s.cat || '').includes(keyword)
+      || (s.memo || '').toLowerCase().includes(keyword);
+    return matchCat && matchText;
+  });
+}
+
+function highlightText(text, keyword) {
+  if (!keyword) return text;
+  const idx = text.toLowerCase().indexOf(keyword.toLowerCase());
+  if (idx === -1) return text;
+  return (
+    text.slice(0, idx) +
+    `<mark class="search-highlight">${text.slice(idx, idx + keyword.length)}</mark>` +
+    text.slice(idx + keyword.length)
+  );
 }
 
 function renderStoreList() {
   const ul = document.getElementById('store-list-ul');
   if (!ul) return;
 
-  const stores = Object.values(overlays).map(e => e.store);
-  const filtered = currentFilter === 'all' ? stores : stores.filter(s => s.cat === currentFilter);
+  const filtered = getFilteredStores();
+
+  // 패널 카운트 업데이트
+  const pc = document.getElementById('panel-count');
+  if (pc) pc.textContent = `${filtered.length}개`;
   filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  const kw = currentSearch;
 
   ul.innerHTML = filtered.length === 0
-    ? '<li style="text-align:center;color:#bbb;padding:40px 0;font-size:14px;">매장이 없어요</li>'
+    ? `<li style="text-align:center;color:#bbb;padding:40px 0;font-size:14px;">${kw ? `"${kw}" 검색 결과가 없어요` : '매장이 없어요'}</li>`
     : filtered.map(s => `
       <li class="store-item" onclick="goToStore('${s.id}')">
         <div class="store-item-header">
-          <span class="store-item-name">${s.name}</span>
+          <span class="store-item-name">${highlightText(s.name, kw)}</span>
           <span class="store-item-tag ${s.cat}">${catLabel[s.cat]}</span>
         </div>
         ${s.hours ? `<div class="store-item-hours">🕐 ${s.hours}</div>` : ''}
         <div class="store-item-addr">📍 ${s.addr}</div>
-        ${s.memo ? `<div class="store-item-memo">💬 ${s.memo}</div>` : ''}
+        ${s.memo ? `<div class="store-item-memo">💬 ${highlightText(s.memo, kw)}</div>` : ''}
       </li>`).join('');
 }
 
 function goToStore(id) {
-  switchView('map');
+  closeStorePanel();
   const entry = overlays[id];
   if (!entry) return;
   map.panTo(new kakao.maps.LatLng(entry.store.lat, entry.store.lng));

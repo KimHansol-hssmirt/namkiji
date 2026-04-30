@@ -1,16 +1,30 @@
 <div id="header">
-  <div class="logo" id="logo-tap">
-    <img src="assets/logo.png" alt="남키지" class="logo-img" />
-    <div class="logo-text">
-      <span class="main">남키지</span>
-      <span class="sub">남대문 키즈 지도</span>
+  <div class="header-top">
+    <div class="logo" id="logo-tap">
+      <img src="assets/logo.png" alt="남키지" class="logo-img" />
+      <div class="logo-text">
+        <span class="main">남키지</span>
+        <span class="sub">남대문 키즈 지도</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="search-toggle-btn" class="search-toggle-btn" onclick="toggleSearch()"><i class="fa-solid fa-magnifying-glass"></i> 검색</button>
+      <button id="admin-btn" onclick="openAdminModal()">관리자</button>
     </div>
   </div>
-  <div class="header-right">
-    <div class="view-toggle">
-      <button id="view-map-btn" class="view-btn active" onclick="switchView('map')">📍 지도</button>
-      <button id="view-list-btn" class="view-btn" onclick="switchView('list')">📋 목록</button>
+
+  <div class="header-search-row" id="header-search-row">
+    <div class="header-search-inner">
+      <!-- <span class="header-search-icon">🔍</span> -->
+      <input
+        type="text"
+        id="store-search-input"
+        class="header-search-input"
+        placeholder="매장 이름으로 검색"
+        oninput="searchStores(this.value)"
+        autocomplete="off"
+      />
+      <button class="header-search-clear" id="search-clear-btn" onclick="clearSearch()" style="display:none">✕</button>
     </div>
-    <button id="admin-btn" onclick="openAdminModal()">관리자</button>
   </div>
 </div>

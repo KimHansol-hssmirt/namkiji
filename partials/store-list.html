@@ -1,4 +1,18 @@
+<div id="store-panel-overlay" onclick="closeStorePanel()"></div>
+
 <div id="store-list-view">
+  <!-- 드래그 핸들 -->
+  <div class="panel-drag-handle" id="panel-drag-handle">
+    <div class="panel-handle-bar"></div>
+  </div>
+
+  <!-- 패널 헤더 -->
+  <div class="panel-top">
+    <span class="panel-title">매장 목록 <span id="panel-count"></span></span>
+    <button class="panel-close-btn" onclick="closeStorePanel()">✕</button>
+  </div>
+
+  <!-- 카테고리 필터 -->
   <div class="list-filter">
     <button class="filter-pill active" data-cat="all"     onclick="filterList('all')">전체</button>
     <button class="filter-pill"        data-cat="clothes" onclick="filterList('clothes')">👗 옷</button>
@@ -6,5 +20,9 @@
     <button class="filter-pill"        data-cat="goods"   onclick="filterList('goods')">🎒 잡화</button>
     <button class="filter-pill"        data-cat="snack"   onclick="filterList('snack')">🍪 간식</button>
   </div>
-  <ul id="store-list-ul"></ul>
+
+  <!-- 스크롤 영역 -->
+  <div id="store-list-ul-wrap">
+    <ul id="store-list-ul"></ul>
+  </div>
 </div>

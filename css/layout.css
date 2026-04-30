@@ -4,11 +4,82 @@
   top: 0; left: 0; right: 0;
   z-index: 100;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
+  flex-direction: column;
+  padding: 10px 16px 10px;
   background: #fff;
   box-shadow: 0 2px 12px rgba(255,107,157,0.15);
+  transition: box-shadow 0.2s;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ─── 검색 토글 버튼 ─── */
+.search-toggle-btn {
+  padding: 6px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #fff;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.search-toggle-btn.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #fff0f6;
+}
+
+/* ─── 검색창 슬라이드 행 ─── */
+.header-search-row {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.header-search-row.open {
+  max-height: 60px;
+}
+.header-search-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 9px 12px;
+  margin-top: 8px;
+  transition: background 0.2s;
+}
+.header-search-inner:focus-within {
+  background: #fff0f6;
+  border: 1px solid var(--primary);
+}
+.header-search-icon { font-size: 14px; flex-shrink: 0; }
+.header-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  min-width: 0;
+}
+.header-search-input::placeholder { color: #bbb; }
+.header-search-clear {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #aaa;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .header-right {
@@ -17,41 +88,89 @@
   gap: 8px;
 }
 
-/* ─── 뷰 토글 ─── */
-.view-toggle {
-  display: flex;
-  background: #f5f5f5;
-  border-radius: 20px;
-  padding: 3px;
-  gap: 2px;
-}
-.view-btn {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: var(--muted);
-  transition: all 0.2s;
-}
-.view-btn.active {
-  background: #fff;
-  color: var(--primary);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
 
-/* ─── 목록 뷰 ─── */
-#store-list-view {
+/* ─── 패널 오버레이 ─── */
+#store-panel-overlay {
   display: none;
   position: fixed;
-  top: 60px; bottom: 0; left: 0; right: 0;
-  background: var(--bg);
-  overflow-y: auto;
-  z-index: 10;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 89;
 }
-#store-list-view.show { display: block; }
+#store-panel-overlay.show { display: block; }
+
+/* ─── 매장 목록 슬라이드 패널 ─── */
+#store-list-view {
+  position: fixed;
+  top: 62px;
+  left: 0; right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(calc(-100% - 62px));
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow: hidden;
+}
+#store-list-view.show {
+  transform: translateY(0);
+}
+
+/* ─── 패널 내부 스크롤 영역 ─── */
+#store-list-ul-wrap {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ─── 패널 상단 핸들 ─── */
+.panel-drag-handle {
+  width: 100%;
+  padding: 10px 0 4px;
+  display: flex;
+  justify-content: center;
+  cursor: grab;
+  flex-shrink: 0;
+}
+.panel-handle-bar {
+  width: 36px; height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+}
+
+/* ─── 패널 타이틀 행 ─── */
+.panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 10px;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+.panel-title span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 4px;
+}
+.panel-close-btn {
+  background: #f5f5f5;
+  border: none;
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.panel-close-btn:active { background: #eee; }
 
 .logo {
   display: flex;
@@ -93,7 +212,8 @@
 /* ─── Map ─── */
 #map {
   position: fixed;
-  top: 60px; bottom: 0; left: 0; right: 0;
+  top: 62px; bottom: 0; left: 0; right: 0;
+  transition: top 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* ─── FAB ─── */

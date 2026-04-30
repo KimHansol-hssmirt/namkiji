@@ -30,6 +30,15 @@
 .filter-pill[data-cat="goods"].active   { background: var(--mint);    border-color: var(--mint); }
 .filter-pill[data-cat="snack"].active   { background: var(--snack);   border-color: var(--snack); }
 
+/* ─── 검색 하이라이트 ─── */
+.search-highlight {
+  background: #fff3b0;
+  color: var(--text);
+  border-radius: 3px;
+  padding: 0 1px;
+  font-style: normal;
+}
+
 /* ─── 목록 아이템 ─── */
 #store-list-ul {
   list-style: none;
