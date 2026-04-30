@@ -18,6 +18,7 @@ async function init() {
     PARTIALS.map(name => fetch(`partials/${name}.html`).then(r => r.text()))
   );
   htmls.forEach(html => app.insertAdjacentHTML('beforeend', html));
+  initToastDrag();
   tryInit();
 }
 

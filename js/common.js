@@ -45,7 +45,8 @@ function dismissToast() {
 }
 
 // ─── 토스트 드래그로 닫기 ─────────────────────────────────────────────────
-(function initToastDrag() {
+// loader.js의 init() 완료 후 호출됨
+function initToastDrag() {
   const DISMISS_THRESHOLD = 50;
   let startY = 0;
   let isDragging = false;
@@ -65,7 +66,7 @@ function dismissToast() {
   function onMove(e) {
     if (!isDragging) return;
     const el = document.getElementById('toast');
-    const dy = Math.max(0, getClientY(e) - startY); // 아래 방향만
+    const dy = Math.max(0, getClientY(e) - startY);
     const progress = Math.min(dy / DISMISS_THRESHOLD, 1);
     el.style.transform = `translateX(-50%) translateY(${dy}px)`;
     el.style.opacity = String(1 - progress * 0.6);
@@ -78,26 +79,20 @@ function dismissToast() {
     const el = document.getElementById('toast');
     const endY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
     const dy = Math.max(0, endY - startY);
-
     el.classList.remove('dragging');
     if (dy >= DISMISS_THRESHOLD) {
       dismissToast();
     } else {
-      // 스냅백
       el.style.transform = '';
       el.style.opacity = '';
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const el = document.getElementById('toast');
-    // 터치
-    el.addEventListener('touchstart', onStart, { passive: true });
-    el.addEventListener('touchmove',  onMove,  { passive: false });
-    el.addEventListener('touchend',   onEnd);
-    // 마우스
-    el.addEventListener('mousedown', onStart);
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup',   onEnd);
-  });
-})();
+  const el = document.getElementById('toast');
+  el.addEventListener('touchstart', onStart, { passive: true });
+  el.addEventListener('touchmove',  onMove,  { passive: false });
+  el.addEventListener('touchend',   onEnd);
+  el.addEventListener('mousedown',  onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onEnd);
+}
