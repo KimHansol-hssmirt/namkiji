@@ -123,7 +123,7 @@ function closeForm() {
   document.getElementById('modal-overlay').classList.remove('show');
   document.getElementById('form-sheet').classList.remove('show');
 }
-
+/*
 const toast = document.getElementById("form-sheet");
 
 let startY = 0;
@@ -170,7 +170,7 @@ toast.addEventListener("touchend", () => {
     // 👉 원위치
     toast.style.transform = `translateX(-50%) translateY(0)`;
   }
-});
+});*/
 
 function selectCat(cat) {
   selectedCat = cat;

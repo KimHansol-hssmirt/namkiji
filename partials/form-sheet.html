@@ -49,6 +49,36 @@
   </div>
 
   <div class="form-group">
+    <label>해시태그 <span class="label-optional">(선택)</span></label>
+
+    <!-- 추천 태그 -->
+    <div class="hashtag-suggestions">
+      <span class="hashtag-suggest-pill" data-tag="딸맘취향저격" onclick="togglePresetTag('딸맘취향저격')">#딸맘취향저격</span>
+      <span class="hashtag-suggest-pill" data-tag="아들맘픽"     onclick="togglePresetTag('아들맘픽')">#아들맘픽</span>
+      <span class="hashtag-suggest-pill" data-tag="힙합룩"       onclick="togglePresetTag('힙합룩')">#힙합룩</span>
+      <span class="hashtag-suggest-pill" data-tag="꾸안꾸"       onclick="togglePresetTag('꾸안꾸')">#꾸안꾸</span>
+      <span class="hashtag-suggest-pill" data-tag="신생아용"     onclick="togglePresetTag('신생아용')">#신생아용</span>
+      <span class="hashtag-suggest-pill" data-tag="도매가능"     onclick="togglePresetTag('도매가능')">#도매가능</span>
+      <span class="hashtag-suggest-pill" data-tag="수입브랜드"   onclick="togglePresetTag('수입브랜드')">#수입브랜드</span>
+      <span class="hashtag-suggest-pill" data-tag="시즌특가"     onclick="togglePresetTag('시즌특가')">#시즌특가</span>
+    </div>
+
+    <!-- 직접 입력 -->
+    <div class="hashtag-input-row">
+      <span class="hashtag-hash-prefix">#</span>
+      <input
+        type="text" id="f-tag-input"
+        class="hashtag-input"
+        placeholder="직접 입력 후 엔터"
+        onkeydown="onTagKeydown(event)"
+      />
+    </div>
+
+    <!-- 선택된 태그 -->
+    <div class="hashtag-selected" id="hashtag-selected"></div>
+  </div>
+
+  <div class="form-group">
     <label>사진 <span class="label-optional">(선택 · 최대 3장)</span></label>
     <div class="photo-upload-area" id="photo-upload-area" onclick="document.getElementById('f-photos').click()">
       <span class="photo-upload-icon">📷</span>

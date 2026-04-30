@@ -214,6 +214,58 @@ function goToStore(id) {
   setTimeout(() => showPopup(id), 300);
 }
 
+// ─── 해시태그 ────────────────────────────────────────────────────────────
+let selectedTags = [];
+
+function addTag(raw) {
+  const tag = raw.replace(/^#+/, '').trim();  // # 앞부분 제거, 공백 제거
+  if (!tag || selectedTags.includes(tag)) return;
+  selectedTags.push(tag);
+  renderTagChips();
+  // 추천 태그 활성화 동기화
+  document.querySelectorAll('.hashtag-suggest-pill').forEach(el => {
+    if (el.dataset.tag === tag) el.classList.add('active');
+  });
+}
+
+function removeTag(tag) {
+  selectedTags = selectedTags.filter(t => t !== tag);
+  renderTagChips();
+  document.querySelectorAll('.hashtag-suggest-pill').forEach(el => {
+    if (el.dataset.tag === tag) el.classList.remove('active');
+  });
+}
+
+function togglePresetTag(tag) {
+  selectedTags.includes(tag) ? removeTag(tag) : addTag(tag);
+}
+
+function onTagKeydown(e) {
+  if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+    e.preventDefault();
+    const val = e.target.value.trim();
+    if (val) { addTag(val); e.target.value = ''; }
+  }
+}
+
+function renderTagChips() {
+  const container = document.getElementById('hashtag-selected');
+  if (!container) return;
+  container.innerHTML = selectedTags.map(tag => `
+    <span class="hashtag-chip">
+      #${tag}
+      <button class="hashtag-chip-remove" onclick="removeTag('${tag}')">×</button>
+    </span>`).join('');
+}
+
+function resetTags() {
+  selectedTags = [];
+  renderTagChips();
+  document.querySelectorAll('.hashtag-suggest-pill').forEach(el => el.classList.remove('active'));
+  const input = document.getElementById('f-tag-input');
+  if (input) input.value = '';
+}
+
 // ─── 사진 업로드 ─────────────────────────────────────────────────────────
 let selectedPhotos = [];   // File 객체 배열 (신규 선택)
 const MAX_PHOTOS = 3;
@@ -376,7 +428,7 @@ async function submitStore() {
   const hours = openTime && closeTime ? `${openTime} ~ ${closeTime}` : (openTime || closeTime || '');
 
   async function save(lat, lng) {
-    const data = { name, addr, cat: selectedCat, memo, hours, lat, lng };
+    const data = { name, addr, cat: selectedCat, memo, hours, lat, lng, tags: [...selectedTags] };
     if (editingStoreId) {
       // 수정 시 새 사진이 있으면 업로드해서 기존 목록에 추가
       const newUrls = await uploadPhotos(editingStoreId);
@@ -427,6 +479,7 @@ function resetForm() {
   document.querySelectorAll('.cat-pill').forEach(el => el.className = 'cat-pill');
   selectedPlace = null;
   resetPhotos();
+  resetTags();
   document.querySelector('.sheet-title').textContent = '📍 매장 제보하기';
   document.querySelector('.submit-btn').textContent = '지도에 핀 등록하기 📌';
 }
@@ -463,6 +516,11 @@ function showPopup(id) {
 
   document.getElementById('popup-addr').textContent = '📍 ' + s.addr;
   document.getElementById('popup-memo').textContent = s.memo ? '💬 ' + s.memo : '';
+
+  const hashtagsEl = document.getElementById('popup-hashtags');
+  hashtagsEl.innerHTML = (s.tags && s.tags.length)
+    ? s.tags.map(t => `<span class="popup-hashtag">#${t}</span>`).join('')
+    : '';
 
   const isDummy = dummyStores.some(d => d.id === id);
   document.getElementById('popup-actions').classList.toggle('visible', isAdmin && !isDummy);
@@ -508,6 +566,9 @@ function openEditForm(id) {
     document.getElementById('f-open').value = o;
     document.getElementById('f-close').value = c;
   }
+  // 기존 태그 로드
+  resetTags();
+  (s.tags || []).forEach(tag => addTag(tag));
   selectCat(s.cat);
 
   document.querySelector('.sheet-title').textContent = '✏️ 매장 수정하기';

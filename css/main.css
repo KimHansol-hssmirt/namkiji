@@ -255,6 +255,109 @@
 }
 .submit-btn:active { background: var(--primary-dark); }
 
+/* ─── 해시태그 ─── */
+.hashtag-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.hashtag-suggest-pill {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #eee;
+  background: #fafafa;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.hashtag-suggest-pill.active {
+  border-color: var(--primary);
+  background: #fff0f6;
+  color: var(--primary);
+}
+
+.hashtag-input-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid #eee;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #fafafa;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.hashtag-input-row:focus-within {
+  border-color: var(--primary);
+  background: #fff;
+}
+.hashtag-hash-prefix {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.hashtag-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+}
+.hashtag-input::placeholder { color: #bbb; }
+
+.hashtag-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.hashtag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px 5px 12px;
+  border-radius: 20px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.hashtag-chip-remove {
+  background: rgba(255,255,255,0.35);
+  border: none;
+  border-radius: 50%;
+  width: 16px; height: 16px;
+  font-size: 11px;
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ─── 팝업 해시태그 ─── */
+.popup-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.popup-hashtag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  background: #fff0f6;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
 /* ─── 사진 업로드 ─── */
 .photo-upload-area {
   display: flex;
