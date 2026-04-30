@@ -566,7 +566,8 @@ function openEditForm(id) {
     document.getElementById('f-open').value = o;
     document.getElementById('f-close').value = c;
   }
-  // 기존 태그 로드
+  // 기존 사진/태그 초기화 후 로드
+  resetPhotos();
   resetTags();
   (s.tags || []).forEach(tag => addTag(tag));
   selectCat(s.cat);
