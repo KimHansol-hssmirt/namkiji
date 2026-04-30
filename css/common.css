@@ -17,7 +17,11 @@
 }
 #toast.show {
   opacity: 1;
+  pointer-events: auto;
   transform: translateX(-50%) translateY(0);
+}
+#toast.dragging {
+  transition: none;
 }
 
 /* ─── Admin modal ─── */

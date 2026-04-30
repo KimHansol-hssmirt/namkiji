@@ -51,6 +51,79 @@ function goToStore(id) {
   setTimeout(() => showPopup(id), 300);
 }
 
+// ─── 사진 업로드 ─────────────────────────────────────────────────────────
+let selectedPhotos = [];   // File 객체 배열 (신규 선택)
+const MAX_PHOTOS = 3;
+
+function onPhotoSelected(input) {
+  const files = Array.from(input.files);
+  const remaining = MAX_PHOTOS - selectedPhotos.length;
+  if (remaining <= 0) { showToast(`사진은 최대 ${MAX_PHOTOS}장까지 추가할 수 있어요`); input.value = ''; return; }
+
+  const toAdd = files.slice(0, remaining);
+  if (files.length > remaining) showToast(`최대 ${MAX_PHOTOS}장까지만 추가됩니다`);
+
+  toAdd.forEach(file => {
+    selectedPhotos.push(file);
+    addPhotoPreview(file, selectedPhotos.length - 1);
+  });
+  input.value = '';
+  updateUploadAreaVisibility();
+}
+
+function addPhotoPreview(file, idx) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const list = document.getElementById('photo-preview-list');
+    const item = document.createElement('div');
+    item.className = 'photo-preview-item';
+    item.dataset.idx = idx;
+    item.innerHTML = `
+      <img src="${e.target.result}" alt="사진 미리보기" />
+      <button class="photo-preview-remove" onclick="removePhoto(${idx})">×</button>`;
+    list.appendChild(item);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(idx) {
+  selectedPhotos[idx] = null;   // null 로 표시 (인덱스 유지)
+  const list = document.getElementById('photo-preview-list');
+  const item = list.querySelector(`[data-idx="${idx}"]`);
+  if (item) item.remove();
+  updateUploadAreaVisibility();
+}
+
+function updateUploadAreaVisibility() {
+  const activeCount = selectedPhotos.filter(Boolean).length;
+  const area = document.getElementById('photo-upload-area');
+  if (area) area.style.display = activeCount >= MAX_PHOTOS ? 'none' : 'flex';
+}
+
+async function uploadPhotos(storeId) {
+  const storage = firebase.storage();
+  const urls = [];
+  const files = selectedPhotos.filter(Boolean);
+  for (const file of files) {
+    const ext = file.name.split('.').pop();
+    const ref = storage.ref(`stores/${storeId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    urls.push(url);
+  }
+  return urls;
+}
+
+function resetPhotos() {
+  selectedPhotos = [];
+  const list = document.getElementById('photo-preview-list');
+  if (list) list.innerHTML = '';
+  const area = document.getElementById('photo-upload-area');
+  if (area) area.style.display = 'flex';
+  const input = document.getElementById('f-photos');
+  if (input) input.value = '';
+}
+
 // ─── 장소 검색 ───────────────────────────────────────────────────────────
 let ps = null;
 
@@ -142,13 +215,23 @@ async function submitStore() {
   async function save(lat, lng) {
     const data = { name, addr, cat: selectedCat, memo, hours, lat, lng };
     if (editingStoreId) {
+      // 수정 시 새 사진이 있으면 업로드해서 기존 목록에 추가
+      const newUrls = await uploadPhotos(editingStoreId);
+      const existing = overlays[editingStoreId]?.store?.photos || [];
+      if (newUrls.length) data.photos = [...existing, ...newUrls];
       await db.collection('stores').doc(editingStoreId).update(data);
       showToast('✏️ 수정됐어요!');
     } else {
-      await db.collection('stores').add({
+      showToast('사진 업로드 중...');
+      const docRef = await db.collection('stores').add({
         ...data,
+        photos: [],
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
+      const photoUrls = await uploadPhotos(docRef.id);
+      if (photoUrls.length) {
+        await docRef.update({ photos: photoUrls });
+      }
       showToast('📌 지도에 등록됐어요!');
     }
     map.panTo(new kakao.maps.LatLng(lat, lng));
@@ -180,6 +263,7 @@ function resetForm() {
   selectedCat = '';
   document.querySelectorAll('.cat-pill').forEach(el => el.className = 'cat-pill');
   selectedPlace = null;
+  resetPhotos();
   document.querySelector('.sheet-title').textContent = '📍 매장 제보하기';
   document.querySelector('.submit-btn').textContent = '지도에 핀 등록하기 📌';
 }
@@ -199,6 +283,21 @@ function showPopup(id) {
 
   const hoursEl = document.getElementById('popup-hours');
   hoursEl.textContent = s.hours ? '🕐 ' + s.hours : '';
+
+  // 사진
+  const photosEl = document.getElementById('popup-photos');
+  photosEl.innerHTML = '';
+  if (s.photos && s.photos.length) {
+    s.photos.forEach(url => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'popup-photo';
+      img.alt = s.name;
+      img.onclick = () => window.open(url, '_blank');
+      photosEl.appendChild(img);
+    });
+  }
+
   document.getElementById('popup-addr').textContent = '📍 ' + s.addr;
   document.getElementById('popup-memo').textContent = s.memo ? '💬 ' + s.memo : '';
 
