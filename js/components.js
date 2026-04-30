@@ -431,23 +431,31 @@ async function submitStore() {
     const data = { name, addr, cat: selectedCat, memo, hours, lat, lng, tags: [...selectedTags] };
     if (editingStoreId) {
       // 수정 시 새 사진이 있으면 업로드해서 기존 목록에 추가
-      const newUrls = await uploadPhotos(editingStoreId);
+      let newUrls = [];
+      try { newUrls = await uploadPhotos(editingStoreId); } catch(e) { console.warn('사진 업로드 실패:', e); }
       const existing = overlays[editingStoreId]?.store?.photos || [];
       if (newUrls.length) data.photos = [...existing, ...newUrls];
       await db.collection('stores').doc(editingStoreId).update(data);
       showToast('✏️ 수정됐어요!');
     } else {
-      showToast('사진 업로드 중...');
+      const hasPhotos = selectedPhotos.filter(Boolean).length > 0;
+      if (hasPhotos) showToast('사진 업로드 중...');
       const docRef = await db.collection('stores').add({
         ...data,
         photos: [],
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       });
-      const photoUrls = await uploadPhotos(docRef.id);
+      let photoUrls = [];
+      try {
+        photoUrls = await uploadPhotos(docRef.id);
+      } catch(e) {
+        console.warn('사진 업로드 실패:', e);
+        showToast('⚠️ 사진 업로드 실패 (매장은 등록됐어요)');
+      }
       if (photoUrls.length) {
         await docRef.update({ photos: photoUrls });
       }
-      showToast('📌 지도에 등록됐어요!');
+      if (photoUrls.length > 0 || !hasPhotos) showToast('📌 지도에 등록됐어요!');
     }
     map.panTo(new kakao.maps.LatLng(lat, lng));
     closeForm();
