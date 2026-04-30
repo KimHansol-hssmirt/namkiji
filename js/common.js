@@ -47,52 +47,65 @@ function dismissToast() {
 // ─── 토스트 드래그로 닫기 ─────────────────────────────────────────────────
 // loader.js의 init() 완료 후 호출됨
 function initToastDrag() {
-  const DISMISS_THRESHOLD = 50;
-  let startY = 0;
-  let isDragging = false;
+  const THRESHOLD = 60;
+  const toast = document.getElementById('toast');
 
-  function getClientY(e) {
-    return e.touches ? e.touches[0].clientY : e.clientY;
-  }
+  /* ── 터치 ── */
+  toast.addEventListener('touchstart', function(e) {
+    if (!toast.classList.contains('show')) return;
+    const startY = e.touches[0].clientY;
+    toast.classList.add('dragging');
 
-  function onStart(e) {
-    const el = document.getElementById('toast');
-    if (!el.classList.contains('show')) return;
-    isDragging = true;
-    startY = getClientY(e);
-    el.classList.add('dragging');
-  }
-
-  function onMove(e) {
-    if (!isDragging) return;
-    const el = document.getElementById('toast');
-    const dy = Math.max(0, getClientY(e) - startY);
-    const progress = Math.min(dy / DISMISS_THRESHOLD, 1);
-    el.style.transform = `translateX(-50%) translateY(${dy}px)`;
-    el.style.opacity = String(1 - progress * 0.6);
-    if (e.cancelable) e.preventDefault();
-  }
-
-  function onEnd(e) {
-    if (!isDragging) return;
-    isDragging = false;
-    const el = document.getElementById('toast');
-    const endY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-    const dy = Math.max(0, endY - startY);
-    el.classList.remove('dragging');
-    if (dy >= DISMISS_THRESHOLD) {
-      dismissToast();
-    } else {
-      el.style.transform = '';
-      el.style.opacity = '';
+    function onMove(ev) {
+      const dy = Math.max(0, ev.touches[0].clientY - startY);
+      toast.style.transform = `translateX(-50%) translateY(${dy}px)`;
+      toast.style.opacity   = String(1 - Math.min(dy / THRESHOLD, 1) * 0.7);
+      ev.preventDefault();
     }
-  }
 
-  const el = document.getElementById('toast');
-  el.addEventListener('touchstart', onStart, { passive: true });
-  el.addEventListener('touchmove',  onMove,  { passive: false });
-  el.addEventListener('touchend',   onEnd);
-  el.addEventListener('mousedown',  onStart);
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup',   onEnd);
+    function onEnd(ev) {
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend',  onEnd);
+      toast.classList.remove('dragging');
+      const dy = Math.max(0, ev.changedTouches[0].clientY - startY);
+      if (dy >= THRESHOLD) {
+        dismissToast();
+      } else {
+        toast.style.transform = '';
+        toast.style.opacity   = '';
+      }
+    }
+
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend',  onEnd);
+  }, { passive: true });
+
+  /* ── 마우스 ── */
+  toast.addEventListener('mousedown', function(e) {
+    if (!toast.classList.contains('show')) return;
+    const startY = e.clientY;
+    toast.classList.add('dragging');
+
+    function onMove(ev) {
+      const dy = Math.max(0, ev.clientY - startY);
+      toast.style.transform = `translateX(-50%) translateY(${dy}px)`;
+      toast.style.opacity   = String(1 - Math.min(dy / THRESHOLD, 1) * 0.7);
+    }
+
+    function onUp(ev) {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+      toast.classList.remove('dragging');
+      const dy = Math.max(0, ev.clientY - startY);
+      if (dy >= THRESHOLD) {
+        dismissToast();
+      } else {
+        toast.style.transform = '';
+        toast.style.opacity   = '';
+      }
+    }
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+  });
 }
