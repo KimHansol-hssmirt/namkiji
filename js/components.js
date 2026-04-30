@@ -7,7 +7,7 @@ function openStorePanel() {
   renderStoreList();
   document.getElementById('store-list-view').classList.add('show');
   document.getElementById('store-panel-overlay').classList.add('show');
-  document.getElementById('store-count').classList.add('panel-open');
+  document.getElementById('store-count').style.display = 'none';
   document.getElementById('info-popup').style.display = 'none';
   initPanelDrag();
 }
@@ -17,9 +17,9 @@ function closeStorePanel() {
   panelOpen = false;
   const panel = document.getElementById('store-list-view');
   panel.classList.remove('show');
-  panel.style.transform = '';     // 드래그 인라인 스타일 초기화
+  panel.style.transform = '';
   document.getElementById('store-panel-overlay').classList.remove('show');
-  document.getElementById('store-count').classList.remove('panel-open');
+  document.getElementById('store-count').style.display = 'block';
 }
 
 function toggleStorePanel() {

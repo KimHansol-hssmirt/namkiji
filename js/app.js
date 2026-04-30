@@ -124,6 +124,54 @@ function closeForm() {
   document.getElementById('form-sheet').classList.remove('show');
 }
 
+const toast = document.getElementById("form-sheet");
+
+let startY = 0;
+let currentY = 0;
+let isDragging = false;
+const threshold = 80; // 이 이상 내려야 닫힘
+
+toast.addEventListener("touchstart", (e) => {
+  startY = e.touches[0].clientY;
+  isDragging = true;
+  toast.style.transition = "none"; // 드래그 중 애니메이션 제거
+});
+
+toast.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+
+  currentY = e.touches[0].clientY;
+  let deltaY = currentY - startY;
+
+  // 위로는 못 올라가게
+  if (deltaY < 0) deltaY = 0;
+
+  toast.style.transform = `translateX(-50%) translateY(${deltaY}px)`;
+
+  e.preventDefault(); // 🔥 스크롤 방지 핵심
+});
+
+toast.addEventListener("touchend", () => {
+  isDragging = false;
+
+  let deltaY = currentY - startY;
+
+  toast.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+
+  if (deltaY > threshold) {
+    // 👉 닫기
+    toast.style.transform = `translateX(-50%) translateY(200px)`;
+    toast.style.opacity = "0";
+
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 300);
+  } else {
+    // 👉 원위치
+    toast.style.transform = `translateX(-50%) translateY(0)`;
+  }
+});
+
 function selectCat(cat) {
   selectedCat = cat;
   document.querySelectorAll('.cat-pill').forEach(el => {
